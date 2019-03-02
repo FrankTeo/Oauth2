@@ -10,6 +10,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Web.Http;
 using System.IO;
+using Amazon.S3;
+using Amazon.S3.Transfer;
+using Amazon.Runtime;
 
 namespace OAuth2
 {
@@ -83,6 +86,50 @@ namespace OAuth2
 
             return ResponseMaker<UploadAuthResponse>(resp);
         }
+        #endregion
+
+        #region UploadFile
+        /// <summary>
+        /// Uploads the file.
+        /// </summary>
+        /// <returns>null</returns>
+        /// <param name="tokenResponse">Token response.</param>
+        /// <param name="uploadAuthResponse">Upload auth response.</param>
+        public void UploadFile(TokenResponse tokenResponse, UploadAuthResponse uploadAuthResponse)
+        {
+            var tr = new TokenRequest();
+            var FileName = "gofishing.txt";
+            var PathName = Environment.CurrentDirectory + "/../../";
+
+            try
+            {
+                AmazonS3Config config = new AmazonS3Config
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.APSoutheast2,
+                    UseHttp = false
+                };
+                var s3Client = new AmazonS3Client(
+                    uploadAuthResponse.credentials.AccessKeyId, 
+                    uploadAuthResponse.credentials.SecretAccessKey, 
+                    uploadAuthResponse.credentials.SessionToken,
+                    config
+                    );
+                var transferUtility = new TransferUtility(s3Client);
+                var request = new TransferUtilityUploadRequest
+                {
+                    BucketName = uploadAuthResponse.BucketName,
+                    Key = uploadAuthResponse.KeyPrefix + FileName,
+                    FilePath = PathName + FileName
+                };
+ 
+                transferUtility.Upload(request);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
         #endregion
 
         /// <summary>

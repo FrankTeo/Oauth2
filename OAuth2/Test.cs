@@ -10,7 +10,7 @@ namespace OAuth2
         private Entrance _entrance;
         private TokenResponse tokenResponse;
         private UploadAuthResponse uploadAuthResponse;
-
+        private UploadFileResponse uploadFileResponse;
         [SetUp]
         public void Setup()
         {
@@ -41,6 +41,7 @@ namespace OAuth2
         [Test]
         public void Entrance_05_UploadFile()
         {
+            _entrance.UploadFile(tokenResponse, uploadAuthResponse);
             Assert.AreEqual(1, 1);
         }
     }
